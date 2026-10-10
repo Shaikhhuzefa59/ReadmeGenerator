@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101323">
+  <title>RepoPilot — GitHub Repository Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="glow glow-one"></div><div class="glow glow-two"></div>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="RepoPilot home">
+      <span class="brand-icon">⌘</span><span>Repo<span class="brand-accent">Pilot</span></span>
+    </a>
+    <span class="top-pill"><span class="status-dot"></span> AI-powered workspace</span>
+  </header>
+
+  <main class="layout">
+    <section class="hero">
+      <div class="eyebrow"><span>✦</span> YOUR REPOSITORY, UNDERSTOOD</div>
+      <h1>Turn code into<br><span class="gradient-text">clear insights.</span></h1>
+      <p class="hero-copy">Analyze a GitHub repository and generate a polished README or a developer-focused LinkedIn post — in one workflow.</p>
+
+      <div class="mini-stats">
+        <div><span class="stat-icon">⌘</span><div><strong>LangGraph</strong><small>Workflow orchestration</small></div></div>
+        <div><span class="stat-icon violet">✧</span><div><strong>Qwen Coder</strong><small>Codebase analysis</small></div></div>
+      </div>
+      <div class="decor-card">
+        <div class="decor-head"><span class="window-dot red"></span><span class="window-dot yellow"></span><span class="window-dot green"></span><span class="decor-label">workflow.py</span></div>
+        <div class="code-line"><span class="line-no">01</span><span class="code-purple">fetch_repository</span><span class="code-muted">()</span><span class="check">✓</span></div>
+        <div class="code-line"><span class="line-no">02</span><span class="code-purple">parse_codebase</span><span class="code-muted">()</span><span class="check">✓</span></div>
+        <div class="code-line"><span class="line-no">03</span><span class="code-purple">explain_code</span><span class="code-muted">()</span><span class="check">✓</span></div>
+        <div class="code-line active"><span class="line-no">04</span><span class="code-blue">generate_output</span><span class="cursor"></span></div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="panel" id="generator-panel">
+        <div class="panel-heading">
+          <div><div class="step-label">STEP 01</div><h2>Connect a repository</h2></div>
+          <span class="github-mark" aria-hidden="true">⑂</span>
+        </div>
+        <label for="repo-url">GitHub repository URL</label>
+        <div class="url-input-wrap"><span class="url-icon">↗</span><input id="repo-url" type="url" placeholder="https://github.com/owner/repository" autocomplete="url"></div>
+        <p class="field-hint">Use a public repository URL. Private repositories need authentication support.</p>
+
+        <div class="separator"></div>
+        <div class="step-label">STEP 02</div>
+        <h2 class="mode-title">Choose your AI provider</h2>
+        <div class="provider-grid">
+          <div class="form-field">
+            <label for="provider">LLM provider</label>
+            <select id="provider" class="form-select">
+              <option value="huggingface">Hugging Face</option>
+              <option value="mistral">Mistral AI</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="model">Model</label>
+            <select id="model" class="form-select"></select>
+          </div>
+        </div>
+        <div class="form-field api-key-field">
+          <label for="api-key">Provider API key</label>
+          <div class="key-input-wrap">
+            <input id="api-key" type="password" placeholder="Paste your provider API key" autocomplete="off" spellcheck="false">
+            <button id="toggle-key" type="button" class="toggle-key" aria-label="Show API key">Show</button>
+          </div>
+          <p class="field-hint">Sent to Flask for the current request only. Do not share your key or commit it to Git.</p>
+          <button id="test-provider-btn" class="secondary-btn test-provider-btn" type="button">Test provider connection</button>
+          <p id="provider-status" class="provider-status" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="separator"></div>
+        <div class="step-label">STEP 03</div>
+        <h2 class="mode-title">What do you want to create?</h2>
+        <div class="mode-grid">
+          <button class="mode-card selected" type="button" data-mode="readme" aria-pressed="true">
+            <span class="mode-icon blue-icon">▤</span><span class="mode-text"><strong>GitHub README</strong><small>Project documentation in Markdown</small></span><span class="radio-dot"></span>
+          </button>
+          <button class="mode-card" type="button" data-mode="linkedin" aria-pressed="false">
+            <span class="mode-icon purple-icon">in</span><span class="mode-text"><strong>LinkedIn Post</strong><small>Showcase your project professionally</small></span><span class="radio-dot"></span>
+          </button>
+        </div>
+
+        <button id="generate-btn" class="primary-btn" type="button"><span>✦</span> Generate with AI <span class="btn-arrow">→</span></button>
+        <div class="privacy-note"><span>◈</span> Repository files are analyzed, not executed.</div>
+        <div id="error-box" class="error-box" role="alert" hidden></div>
+      </div>
+
+      <div id="progress-panel" class="panel progress-panel" hidden>
+        <div class="spinner"></div><h2>Understanding your codebase</h2>
+        <p id="progress-message">Connecting to GitHub…</p>
+        <div class="progress-track"><div class="progress-fill"></div></div>
+        <div class="progress-steps"><span>Clone</span><span>Analyze</span><span>Generate</span></div>
+        <p class="field-hint">Large repositories or busy model endpoints may take a little longer.</p>
+      </div>
+
+      <div id="result-panel" class="panel result-panel" hidden>
+        <div class="result-heading"><div><div class="step-label">YOUR OUTPUT</div><h2 id="result-title">Generated README</h2></div><span class="success-badge">✓ Ready</span></div>
+        <div class="result-meta"><span id="result-kind">MARKDOWN</span><span id="result-repo"></span></div>
+        <pre id="result-output" class="result-output"></pre>
+        <div class="result-actions"><button id="copy-btn" class="secondary-btn" type="button">▢ Copy output</button><button id="download-btn" class="primary-btn compact" type="button">↓ Download file</button></div>
+        <div class="result-footer"><span>Generated from repository analysis</span><button id="new-btn" class="text-btn" type="button">← Analyze another repository</button></div>
+        <details class="analysis-details"><summary>View architectural analysis</summary><pre id="analysis-output"></pre></details>
+      </div>
+    </section>
+  </main>
+  <footer><span>RepoPilot</span><span>Built with Flask · LangGraph · Hugging Face · Mistral AI</span></footer>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
